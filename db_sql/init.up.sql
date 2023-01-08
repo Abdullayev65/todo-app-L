@@ -33,4 +33,4 @@ CREATE TABLE lists_items
     id      serial primary key,
     list_id int not null references todo_lists (id) on delete cascade,
     item_id int not null references todo_item (id) on delete cascade
-)
+);
