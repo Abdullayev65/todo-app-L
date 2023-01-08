@@ -1,4 +1,4 @@
-CREATE TABLE users
+CREATE TABLE IF NOT EXISTS users
 (
     id            serial primary key,
     name          varchar(255) not null,
@@ -6,21 +6,21 @@ CREATE TABLE users
     password_hash varchar(255) not null
 );
 
-CREATE TABLE todo_lists
+CREATE TABLE IF NOT EXISTS todo_lists
 (
     id          serial primary key,
     title       varchar(255) not null,
-    description varchar(255) not null,
+    description varchar(255) not null
 );
 
-CREATE TABLE users_lists
+CREATE TABLE IF NOT EXISTS users_lists
 (
     id      serial primary key,
     user_id int not null references users (id) on delete cascade,
     list_id int not null references users_lists (id) on delete cascade
 );
 
-CREATE TABLE todo_item
+CREATE TABLE IF NOT EXISTS todo_item
 (
     id          serial primary key,
     title       varchar(255) not null,
@@ -28,7 +28,7 @@ CREATE TABLE todo_item
     done        boolean      not null default false
 );
 
-CREATE TABLE lists_items
+CREATE TABLE IF NOT EXISTS lists_items
 (
     id      serial primary key,
     list_id int not null references todo_lists (id) on delete cascade,
