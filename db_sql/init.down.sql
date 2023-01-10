@@ -1,5 +1,5 @@
-DELETE TABLE lists_items;
-DELETE TABLE users_lists;
-DELETE TABLE todo_lists;
-DELETE TABLE todo_item;
-DELETE TABLE users;
+DROP TABLE lists_items;
+DROP TABLE users_lists;
+DROP TABLE todo_lists;
+DROP TABLE todo_item;
+DROP TABLE users;
