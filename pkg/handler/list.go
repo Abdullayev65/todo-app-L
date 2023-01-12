@@ -7,6 +7,15 @@ import (
 	"strconv"
 )
 
+// @Summary		Create todo list
+// @Security		ApiKeyAuth
+// @Tags			lists
+// @Description	create todo list
+// @ID				create-list
+// @Accept			json
+// @Produce		json
+// @Param			input	body	utill.TodoList	true	"list info"
+// @Router			/api/lists [post]
 func (h *Handler) creatList(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
@@ -17,7 +26,7 @@ func (h *Handler) creatList(c *gin.Context) {
 		newResponseError(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	listId, err := h.service.Create(userId, intup)
+	listId, err := h.service.TodoList.Create(userId, intup)
 	if err != nil {
 		newResponseError(c, http.StatusBadRequest, err.Error())
 		return
@@ -31,18 +40,28 @@ type getAllListsResponse struct {
 	Data []todo.TodoList
 }
 
+//	@Summary		Get All Lists
+//	@Security		ApiKeyAuth
+//	@Tags			lists
+//	@Description	get all lists
+//	@ID				get-all-lists
+//	@Accept			json
+//	@Produce		json
+//
+// @Router /api/lists [get]
 func (h *Handler) getAllList(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		return
 	}
-	lists, err := h.service.GetAll(userId)
+	lists, err := h.service.TodoList.GetAll(userId)
 	if err != nil {
 		newResponseError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 	c.AbortWithStatusJSON(statusOk, getAllListsResponse{Data: lists})
 }
+
 func (h *Handler) getListById(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
@@ -60,13 +79,14 @@ func (h *Handler) getListById(c *gin.Context) {
 			id = i
 		}
 	}
-	list, err := h.service.GetById(userId, id)
+	list, err := h.service.TodoList.GetById(userId, id)
 	if err != nil {
 		newResponseError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 	c.AbortWithStatusJSON(statusOk, list)
 }
+
 func (h *Handler) updateList(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
@@ -86,13 +106,14 @@ func (h *Handler) updateList(c *gin.Context) {
 	}
 	var input todo.InputListUpdate
 	c.BindJSON(&input)
-	err = h.service.Update(userId, id, input)
+	err = h.service.TodoList.Update(userId, id, input)
 	if err != nil {
 		newResponseError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 	c.AbortWithStatusJSON(statusOk, newStatusRes("ok"))
 }
+
 func (h *Handler) deleteList(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
@@ -110,7 +131,7 @@ func (h *Handler) deleteList(c *gin.Context) {
 			id = i
 		}
 	}
-	err = h.service.Delete(userId, id)
+	err = h.service.TodoList.Delete(userId, id)
 	if err != nil {
 		newResponseError(c, http.StatusInternalServerError, err.Error())
 		return

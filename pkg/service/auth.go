@@ -16,11 +16,11 @@ const (
 )
 
 type AuthService struct {
-	repo     *repository.Repository
+	repo     repository.Authorization
 	tokenJWT *utill.TokenJWT
 }
 
-func newAuthService(repo *repository.Repository) *AuthService {
+func newAuthService(repo repository.Authorization) *AuthService {
 	return &AuthService{
 		repo:     repo,
 		tokenJWT: utill.NewToken(signingKey, tokenValidTime),

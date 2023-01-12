@@ -49,8 +49,6 @@ func (r *TodoListPostgres) GetById(userId, listId int) (todo.TodoList, error) {
 	query := fmt.Sprintf("SELECT l.* FROM %s l INNER JOIN %s ul ON l.id=list_id WHERE user_id = $1 AND list_id = $2", todoListsTable, usersTodoListsTable)
 	var list todo.TodoList
 	err := r.db.Get(&list, query, userId, listId)
-	fmt.Println(query)
-	fmt.Println(list, err)
 	return list, err
 }
 func (r *TodoListPostgres) Delete(userId, listId int) error {
