@@ -5,11 +5,6 @@ type TodoList struct {
 	Title       string `json:"title" db:"title" binding:"required"`
 	Description string `json:"description" db:"description"`
 }
-type Item struct {
-	Id          int    `json:"id" db:"id"`
-	Title       string `json:"title" db:"title" binding:"required"`
-	Description string `json:"description" db:"description"`
-}
 
 type UsersList struct {
 	Id     int
@@ -18,7 +13,7 @@ type UsersList struct {
 }
 
 type TodoItem struct {
-	Id          int    `json:"-"`
+	Id          int    `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Done        bool   `json:"done"`
@@ -31,6 +26,11 @@ type ListsItem struct {
 }
 
 type InputListUpdate struct {
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
+}
+
+type InputItemUpdate struct {
 	Title       *string `json:"title"`
 	Description *string `json:"description"`
 	Done        *bool   `json:"done"`

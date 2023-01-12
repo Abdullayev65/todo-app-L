@@ -2,9 +2,9 @@ package handler
 
 import (
 	"github.com/AbdullohAbdullayev/todo-app-L.git"
+	"github.com/AbdullohAbdullayev/todo-app-L.git/pkg/utill"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 // @Summary		Create todo list
@@ -52,6 +52,7 @@ type getAllListsResponse struct {
 func (h *Handler) getAllList(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
+		newResponseError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	lists, err := h.service.TodoList.GetAll(userId)
@@ -67,17 +68,10 @@ func (h *Handler) getListById(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	var id int
-	if paramId := c.Param("id"); paramId == "" {
-		newResponseError(c, http.StatusBadRequest, "param id not founded")
+	id, err := utill.ParamInt(c, "id")
+	if err != nil {
+		newResponseError(c, http.StatusBadRequest, err.Error())
 		return
-	} else {
-		if i, err := strconv.Atoi(paramId); err != nil {
-			newResponseError(c, http.StatusBadRequest, "param id invalid")
-			return
-		} else {
-			id = i
-		}
 	}
 	list, err := h.service.TodoList.GetById(userId, id)
 	if err != nil {
@@ -92,17 +86,9 @@ func (h *Handler) updateList(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	var id int
-	if paramId := c.Param("id"); paramId == "" {
-		newResponseError(c, http.StatusBadRequest, "param id not founded")
-		return
-	} else {
-		if i, err := strconv.Atoi(paramId); err != nil {
-			newResponseError(c, http.StatusBadRequest, "param id invalid")
-			return
-		} else {
-			id = i
-		}
+	id, err := utill.ParamInt(c, "id")
+	if err != nil {
+		newResponseError(c, http.StatusBadRequest, err.Error())
 	}
 	var input todo.InputListUpdate
 	c.BindJSON(&input)
@@ -119,17 +105,10 @@ func (h *Handler) deleteList(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	var id int
-	if paramId := c.Param("id"); paramId == "" {
-		newResponseError(c, http.StatusBadRequest, "param id not founded")
+	id, err := utill.ParamInt(c, "id")
+	if err != nil {
+		newResponseError(c, http.StatusBadRequest, err.Error())
 		return
-	} else {
-		if i, err := strconv.Atoi(paramId); err != nil {
-			newResponseError(c, http.StatusBadRequest, "param id invalid")
-			return
-		} else {
-			id = i
-		}
 	}
 	err = h.service.TodoList.Delete(userId, id)
 	if err != nil {

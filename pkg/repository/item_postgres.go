@@ -20,7 +20,8 @@ func (r *ItemPostgres) Create(userId int, listId int, list todo.TodoItem) (int, 
 	// check list owner
 	{
 		query := fmt.Sprintf(`SELECT l.id FROM %s l INNER JOIN %s ul ON ul.list_id = l.id
- INNER JOIN %s u ON ul.user_id = u.id WHERE u.id = $1 AND l.id=$2`)
+ INNER JOIN %s u ON ul.user_id = u.id WHERE u.id = $1 AND l.id=$2`,
+			todoListsTable, usersTodoListsTable, usersTable)
 		row := r.db.QueryRow(query, userId, listId)
 		var l_id int
 		err := row.Scan(&l_id)
@@ -58,7 +59,7 @@ func (r *ItemPostgres) Create(userId int, listId int, list todo.TodoItem) (int, 
 
 func (r *ItemPostgres) GetAll(userId, listId int) ([]todo.TodoItem, error) {
 	query := fmt.Sprintf(`SELECT i.* FROM %s i INNER JOIN %s il ON il.item_id=i.id
- INNER JOIN %s l ON il.list_id=l.id INNER JOIN %s ul ON ul.list_id=i.id WHERE user_id = $1 AND l.id = $2`,
+ INNER JOIN %s l ON il.list_id=l.id INNER JOIN %s ul ON ul.list_id=l.id WHERE user_id = $1 AND l.id = $2`,
 		todoItemTable, listsItemsTable, todoListsTable, usersTodoListsTable)
 	var lists []todo.TodoItem
 	err := r.db.Select(&lists, query, userId, listId)
@@ -67,7 +68,7 @@ func (r *ItemPostgres) GetAll(userId, listId int) ([]todo.TodoItem, error) {
 
 func (r *ItemPostgres) GetById(userId, listId, itemId int) (todo.TodoItem, error) {
 	query := fmt.Sprintf(`SELECT i.* FROM %s i INNER JOIN %s il ON il.item_id=i.id
- INNER JOIN %s l ON il.list_id=l.id INNER JOIN %s ul ON ul.list_id=i.id 
+ INNER JOIN %s l ON il.list_id=l.id INNER JOIN %s ul ON ul.list_id=l.id 
  WHERE user_id = $1 AND l.id = $2 AND i.id = $3`,
 		todoItemTable, listsItemsTable, todoListsTable, usersTodoListsTable)
 	var item todo.TodoItem
@@ -75,14 +76,14 @@ func (r *ItemPostgres) GetById(userId, listId, itemId int) (todo.TodoItem, error
 	return item, err
 }
 func (r *ItemPostgres) Delete(userId, listId, itemId int) error {
-	query := fmt.Sprintf(`DELETE FROM %s i INNER JOIN %s il ON il.item_id=i.id
- INNER JOIN %s l ON il.list_id=l.id INNER JOIN %s ul ON ul.list_id=i.id 
- WHERE user_id = $1 AND l.id = $2 AND i.id = $3`,
-		todoItemTable, listsItemsTable, todoListsTable, usersTodoListsTable)
-	_, err := r.db.Exec(query, userId, listId, itemId)
+	query := fmt.Sprintf(`DELETE FROM %s ti USING %s li, %s ul 
+WHERE ti.id = li.item_id AND li.list_id = ul.list_id AND ul.user_id = $1 AND ti.id = $2`,
+		todoItemTable, listsItemsTable, usersTodoListsTable)
+	_, err := r.db.Exec(query, userId, itemId)
+	fmt.Println(query)
 	return err
 }
-func (r *ItemPostgres) Update(userId int, listId int, itemId int, input todo.InputListUpdate) error {
+func (r *ItemPostgres) Update(userId int, listId int, itemId int, input todo.InputItemUpdate) error {
 	argNum, args, setValues := 1, *new([]any), *new([]string)
 	if input.Title != nil {
 		setValues = append(setValues, fmt.Sprintf("title=$%d", argNum))
@@ -103,9 +104,9 @@ func (r *ItemPostgres) Update(userId int, listId int, itemId int, input todo.Inp
 		return errors.New("all fields are nil")
 	}
 	setStr := strings.Join(setValues, " ,")
-	query := fmt.Sprintf(`UPDATE %s i SET %s FROM %s il ON il.item_id=i.id
- INNER JOIN %s l ON il.list_id=l.id INNER JOIN %s ul ON ul.list_id=i.id 
- WHERE user_id = $%d AND l.id = $%d AND i.id = $%d `,
+	query := fmt.Sprintf(`UPDATE %s i SET %s FROM %s il 
+INNER JOIN %s l ON il.list_id=l.id INNER JOIN %s ul ON ul.list_id=l.id 
+ WHERE user_id = $%d AND l.id = $%d AND i.id = $%d AND il.item_id=i.id`,
 		todoItemTable, setStr, listsItemsTable,
 		todoListsTable, usersTodoListsTable, argNum, argNum+1, argNum+2)
 	args = append(args, userId, listId, itemId)

@@ -22,7 +22,7 @@ type TodoItem interface {
 	GetAll(userId, listId int) ([]todo.TodoItem, error)
 	GetById(userId, listId, itemId int) (todo.TodoItem, error)
 	Delete(userId, listId, itemId int) error
-	Update(userId int, listId int, itemId int, input todo.InputListUpdate) error
+	Update(userId int, listId int, itemId int, input todo.InputItemUpdate) error
 }
 type Service struct {
 	Authorization

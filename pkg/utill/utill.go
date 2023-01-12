@@ -7,7 +7,7 @@ import (
 )
 
 func ParamInt(c *gin.Context, parName string) (int, error) {
-	param := c.Param("id")
+	param := c.Param(parName)
 	if param == "" {
 		return 0, fmt.Errorf("param [%s] not founded", parName)
 	}
